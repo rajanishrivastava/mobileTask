@@ -1,15 +1,7 @@
 import React, { Component, useState } from 'react';
 import { View, StyleSheet, TextInput, FlatList, Text, AsyncStorage, processColor } from 'react-native';
 import { debounce } from "debounce";
-import {API_KEY}  from "react-native-dotenv";
-/* 
-
-  var searchedAdresses = adresses.filter(function(adress) {
-    return adress.street.toLowerCase().indexOf(searchedText.toLowerCase()) > -1;
-  });
-  this.setState({searchedAdresses: searchedAdresses});
-};
- */
+import { API_KEY } from "react-native-dotenv";
 import DatePicker from './DatePicker';
 import TimePicker from './TimePicker';
 
@@ -67,30 +59,8 @@ export default class TripTask extends Component {
 
     var proxyUrl = 'https://cors-anywhere.herokuapp.com/';
     var placesURL = 'https://maps.googleapis.com/maps/api/place/autocomplete/json?input='
-      + searchedText + '&key='+API_KEY;
-    /*    fetch(proxyUrl + placesURL)
-         .then(
-           function (response) {
-             if (response.status !== 200) {
-               console.log('Looks like there was a problem. Status Code: ' +
-                 response.status);
-               return;
-             }
-             // Examine the text in the response
-             response.json().then(function (data) {
-               //console.log(data);
-               if (caller === "fromAddr") {
-                 t.setState({ searchFromAdresses: data.predictions, fromOptionsShow: true });
-               } else {
-                 t.setState({ searchToAdresses: data.predictions, toOptionsShow: true });
-               }
-             });
-           }
-         )
-         .catch(function (err) {
-           console.log('Fetch Error :-S', err);
-         })
-    */
+      + searchedText + '&key=' + API_KEY;
+
     function reqListener() {
       var data = JSON.parse(this.response);
       console.log(data);
@@ -117,7 +87,7 @@ export default class TripTask extends Component {
   ShowHideComponent = () => {
     if (this.state.toAddr == "Von" || this.state.toAddr == "") {
       this.setState({ show: false });
-    }else{
+    } else {
       this.setState({ show: true });
     }
   }
@@ -173,19 +143,8 @@ export default class TripTask extends Component {
           //placeholder="Von"
           value={this.state.fromAddr}
           onChangeText={this.getFromAddr}
-        //onChangeText={debounce(this.loadAdresses, 500)}
-
-        // onFocus={() => this.setState({ fromAddr: " " })}
         />
-        {/* <FlatList
-          data={this.state.searchedAdresses}
-         renderItem={({ item }) => ( <Text> {item.description}  </Text> )}
 
-         //renderItem={({ item }) => new Text(data : item.description }
-
-          keyExtractor={item => item.place_id}
-
-        /> */}
         {this.state.fromOptionsShow ? <FlatList
           data={this.state.searchFromAdresses}
           //data defined in constructor
