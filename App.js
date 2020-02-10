@@ -51,9 +51,10 @@ export default class TripTask extends Component {
 
       value = await AsyncStorage.getItem("toAddr");
       if (value !== null) {
-        this.setState({ toAddr: value });;
+        this.setState({ toAddr: value });
         this.getDistance();
       }
+
     } catch (error) {
       // Error retrieving data: TBD
     }
@@ -100,7 +101,7 @@ export default class TripTask extends Component {
     function reqListener() {
       var data = JSON.parse(this.response);
       // console.log(data);
-      if (data.rows != null ) {
+      if (data.rows != null && data.origin_addresses[0] === t.state.fromAddr  && data.destination_addresses[0] === t.state.toAddr ) {
         t.setState({ distance: data.rows[0].elements[0].distance.text });
         var addedDate = new Date( t.state.fromDate.getTime() + data.rows[0].elements[0].duration.value*1000);
         t.setState({ toDate : addedDate});
@@ -128,22 +129,14 @@ export default class TripTask extends Component {
     }
   }
 
-  setSaveFromAddr = async (text) => {
+  setAddressAndSaveLocal = async (text, key) => {
     this.setState({ fromAddr: text, fromOptionsShow: false, searchFromAdresses: [] });
-    try {
-      await AsyncStorage.setItem('fromAddr', text);
-    } catch (error) {
-      // Error saving data: TBD
-    }
-  }
-  setSaveToAddr = async (text) => {
-    this.setState({ toAddr: text, toOptionsShow: false, searchToAdresses: [] })
-    try {
-      await AsyncStorage.setItem('toAddr', text);
-    } catch (error) {
-      // Error saving data: TBD
-    }
     this.getDistance();
+    try {
+      await AsyncStorage.setItem( key, text);
+    } catch (error) {
+      // Error saving data: TBD
+    }
   }
 
 
@@ -167,10 +160,7 @@ export default class TripTask extends Component {
     );
   };
 
-  GetItem(item) {
-    //Function for click on an item
-    this.setState({ fromAddr: item.description });
-  }
+
 
   render() {
     return (
@@ -193,7 +183,7 @@ export default class TripTask extends Component {
               <Text
                 style={styles.item}
                 onPress={() => {
-                  this.setSaveFromAddr(item.description)
+                  this.setAddressAndSaveLocal(item.description, "fromAddr")
                 }} >
                 {item.description}
               </Text>
@@ -235,7 +225,7 @@ export default class TripTask extends Component {
                 <Text
                   style={styles.item}
                   onPress={() => {
-                    this.setSaveToAddr(item.description)
+                    this.setAddressAndSaveLocal(item.description, "toAddr")
 
                   }} >
                   {item.description}
