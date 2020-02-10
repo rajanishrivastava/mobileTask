@@ -35,11 +35,11 @@ export default class TripTask extends Component {
     this.loadLocalSavedAddr();
     this.ShowHideComponent();
     this.syncToClouddb();
+    this.getDistance();
   }
 
   syncToClouddb = () => {
-    //compare and see the latest timesamp and sync from cloud to local db or local db to cloud
-    //Struture of data in local db needs to have extension with timestamp
+    //Update from local db to cloud
   }
 
   loadLocalSavedAddr = async () => {
@@ -55,12 +55,12 @@ export default class TripTask extends Component {
         this.setState({ toAddr: value });;
       }
     } catch (error) {
-      // Error retrieving data
+      // Error retrieving data: TBD
     }
   }
 
 
-  loadAdresses(searchedText, caller) {
+  loadAdresses = (searchedText, caller) => {
     var t = this;
 
     var proxyUrl = 'https://cors-anywhere.herokuapp.com/';
@@ -100,11 +100,12 @@ export default class TripTask extends Component {
     function reqListener() {
       var data = JSON.parse(this.response);
      // console.log(data);
+     if(data.rows != null){
       t.setState({ distance: data.rows[0].elements[0].distance.text });
       t.state.toDate.setSeconds( t.state.fromDate.getSeconds() + data.rows[0].elements[0].duration.value );
       t.state.toTime.setSeconds( t.state.fromTime.getSeconds() + data.rows[0].elements[0].duration.value );
     }
-
+  }
     function reqError(err) {
     //  console.log('Fetch Error :-S', err);
     }
