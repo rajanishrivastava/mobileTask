@@ -1,4 +1,4 @@
-import React, { Component, useState } from 'react';
+import React, { Component } from 'react';
 import { View, StyleSheet, TextInput, FlatList, Text, AsyncStorage, processColor } from 'react-native';
 import { debounce } from "debounce";
 import { API_KEY } from "react-native-dotenv";
@@ -31,12 +31,17 @@ export default class TripTask extends Component {
 
 
   componentDidMount = () => {
-    this.getSavedAddr();
+    this.loadLocalSavedAddr();
     this.ShowHideComponent();
+    this.syncToClouddb();
   }
 
+  syncToClouddb = () => {
+    //compare and see the latest timesamp and sync from cloud to local db or local db to cloud
+    //Struture of data in local db needs to have extension with timestamp
+  }
 
-  getSavedAddr = async () => {
+  loadLocalSavedAddr = async () => {
     //retrieve stored data for the first time
     try {
       var value = await AsyncStorage.getItem("fromAddr");
