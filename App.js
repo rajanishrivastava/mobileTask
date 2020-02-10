@@ -130,7 +130,11 @@ export default class TripTask extends Component {
   }
 
   setAddressAndSaveLocal = async (text, key) => {
-    this.setState({ fromAddr: text, fromOptionsShow: false, searchFromAdresses: [] });
+    if(key === "fromAddr"){
+      this.setState({ fromAddr: text, fromOptionsShow: false, searchFromAdresses: [] });
+    }else{
+      this.setState({ toAddr: text, toOptionsShow: false, searchToAdresses: [] });
+    }
     this.getDistance();
     try {
       await AsyncStorage.setItem( key, text);
