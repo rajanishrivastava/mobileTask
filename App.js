@@ -35,7 +35,6 @@ export default class TripTask extends Component {
     this.loadLocalSavedAddr();
     this.ShowHideComponent();
     this.syncToClouddb();
-    this.getDistance();
   }
 
   syncToClouddb = () => {
@@ -53,6 +52,7 @@ export default class TripTask extends Component {
       value = await AsyncStorage.getItem("toAddr");
       if (value !== null) {
         this.setState({ toAddr: value });;
+        this.getDistance();
       }
     } catch (error) {
       // Error retrieving data: TBD
@@ -99,15 +99,16 @@ export default class TripTask extends Component {
 
     function reqListener() {
       var data = JSON.parse(this.response);
-     // console.log(data);
-     if(data.rows != null){
-      t.setState({ distance: data.rows[0].elements[0].distance.text });
-      t.state.toDate.setSeconds( t.state.fromDate.getSeconds() + data.rows[0].elements[0].duration.value );
-      t.state.toTime.setSeconds( t.state.fromTime.getSeconds() + data.rows[0].elements[0].duration.value );
+      // console.log(data);
+      if (data.rows != null ) {
+        t.setState({ distance: data.rows[0].elements[0].distance.text });
+        var addedDate = new Date( t.state.fromDate.getTime() + data.rows[0].elements[0].duration.value*1000);
+        t.setState({ toDate : addedDate});
+        t.setState({ toTime : addedDate});
+      }
     }
-  }
     function reqError(err) {
-    //  console.log('Fetch Error :-S', err);
+      //  console.log('Fetch Error :-S', err);
     }
     var oReq = new XMLHttpRequest();
     oReq.onload = reqListener;
@@ -264,8 +265,8 @@ export default class TripTask extends Component {
 
 
         <Text style={styles.titleText} >
-          {this.distance}{'\n'}{'\n'}
-        </Text> 
+          {this.state.distance}
+        </Text>
       </View>
     );
   }
