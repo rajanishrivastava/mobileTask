@@ -22,7 +22,7 @@ const DatePicker = ({ label, date, onDateChange }) => (
   <View style={styles.datePickerContainer}>
     <Text style={styles.datePickerLabel}>{label}</Text>
     <Text onPress={() => pickDate({ date }, onDateChange)}>
-      {date.toLocaleDateString()}
+      {date.toLocaleDateString("en-DE")}
     </Text>
   </View>
 );

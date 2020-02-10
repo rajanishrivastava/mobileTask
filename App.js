@@ -99,12 +99,14 @@ export default class TripTask extends Component {
 
     function reqListener() {
       var data = JSON.parse(this.response);
-      console.log(data);
-      t.setState({ distance: data.rows[0].elements[0].distance });
+     // console.log(data);
+      t.setState({ distance: data.rows[0].elements[0].distance.text });
+      t.state.toDate.setSeconds( t.state.fromDate.getSeconds() + data.rows[0].elements[0].duration.value );
+      t.state.toTime.setSeconds( t.state.fromTime.getSeconds() + data.rows[0].elements[0].duration.value );
     }
 
     function reqError(err) {
-      console.log('Fetch Error :-S', err);
+    //  console.log('Fetch Error :-S', err);
     }
     var oReq = new XMLHttpRequest();
     oReq.onload = reqListener;
@@ -129,7 +131,7 @@ export default class TripTask extends Component {
     try {
       await AsyncStorage.setItem('fromAddr', text);
     } catch (error) {
-      // Error saving data
+      // Error saving data: TBD
     }
   }
   setSaveToAddr = async (text) => {
@@ -137,7 +139,7 @@ export default class TripTask extends Component {
     try {
       await AsyncStorage.setItem('toAddr', text);
     } catch (error) {
-      // Error saving data
+      // Error saving data: TBD
     }
     this.getDistance();
   }
@@ -260,9 +262,9 @@ export default class TripTask extends Component {
         ) : null}
 
 
-     {/*    <Text style={styles.titleText} >
+        <Text style={styles.titleText} >
           {this.distance}{'\n'}{'\n'}
-        </Text> */}
+        </Text> 
       </View>
     );
   }

@@ -21,7 +21,7 @@ const TimePicker = ({ label, date, onTimeChange }) => (
   <View style={styles.datePickerContainer}>
     <Text style={styles.datePickerLabel}>{label}</Text>
     <Text onPress={() => pickDate({ date }, onTimeChange)}>
-      {date.toLocaleTimeString()}
+      {date.toLocaleTimeString("en-DE")}
     </Text>
   </View>
 );
