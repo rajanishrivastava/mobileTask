@@ -26,6 +26,7 @@ export default class TripTask extends Component {
       searchToAdresses: [],
       fromOptionsShow: false,
       toOptionsShow: false,
+      distance: 0,
     }
   };
 
@@ -68,7 +69,7 @@ export default class TripTask extends Component {
 
     function reqListener() {
       var data = JSON.parse(this.response);
-      console.log(data);
+      //   console.log(data);
       if (caller === "fromAddr") {
         t.setState({ searchFromAdresses: data.predictions, fromOptionsShow: true });
       } else {
@@ -88,6 +89,32 @@ export default class TripTask extends Component {
   }
 
 
+  getDistance = () => {
+
+    var t = this;
+
+    var proxyUrl = 'https://cors-anywhere.herokuapp.com/';
+    var distanceURL = 'https://maps.googleapis.com/maps/api/distancematrix/json?units=metric&origins=' + this.state.fromAddr + '&destinations=' +
+      this.state.toAddr + '&key=' + API_KEY
+
+    function reqListener() {
+      var data = JSON.parse(this.response);
+      console.log(data);
+      t.setState({ distance: data.rows[0].elements[0].distance });
+    }
+
+    function reqError(err) {
+      console.log('Fetch Error :-S', err);
+    }
+    var oReq = new XMLHttpRequest();
+    oReq.onload = reqListener;
+    oReq.onerror = reqError;
+    oReq.open('get', proxyUrl + distanceURL, true);
+    oReq.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+    oReq.send();
+
+
+  }
 
   ShowHideComponent = () => {
     if (this.state.toAddr == "Von" || this.state.toAddr == "") {
@@ -112,6 +139,7 @@ export default class TripTask extends Component {
     } catch (error) {
       // Error saving data
     }
+    this.getDistance();
   }
 
 
@@ -230,6 +258,11 @@ export default class TripTask extends Component {
             }}
           />
         ) : null}
+
+
+     {/*    <Text style={styles.titleText} >
+          {this.distance}{'\n'}{'\n'}
+        </Text> */}
       </View>
     );
   }
@@ -238,7 +271,7 @@ export default class TripTask extends Component {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 4,
+    flex: 5,
     paddingTop: 30,
     paddingLeft: 20,
     flexDirection: 'column',
@@ -252,6 +285,11 @@ const styles = StyleSheet.create({
     fontSize: 18,
     height: 44,
     width: "100%",
+  },
+
+  titleText: {
+    fontSize: 20,
+    fontWeight: 'bold',
   },
 
 
