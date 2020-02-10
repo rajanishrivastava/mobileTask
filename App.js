@@ -91,6 +91,12 @@ export default class TripTask extends Component {
 
 
   getDistance = () => {
+    if (this.state.fromAddr.localeCompare("Von") === 0 ||  this.state.toAddr.localeCompare("Nach") === 0) {
+
+      return;
+
+    }
+
 
     var t = this;
 
@@ -101,11 +107,13 @@ export default class TripTask extends Component {
     function reqListener() {
       var data = JSON.parse(this.response);
       // console.log(data);
-      if (data.rows != null && data.origin_addresses[0] === t.state.fromAddr  && data.destination_addresses[0] === t.state.toAddr ) {
+      // var origin =  data.origin_addresses[0];
+      //var destination = data.destination_addresses[0];
+      if (data.rows[0].elements != undefined && data.rows[0].elements[0].distance != undefined) {
         t.setState({ distance: data.rows[0].elements[0].distance.text });
-        var addedDate = new Date( t.state.fromDate.getTime() + data.rows[0].elements[0].duration.value*1000);
-        t.setState({ toDate : addedDate});
-        t.setState({ toTime : addedDate});
+        var addedDate = new Date(t.state.fromDate.getTime() + data.rows[0].elements[0].duration.value * 1000);
+        t.setState({ toDate: addedDate });
+        t.setState({ toTime: addedDate });
       }
     }
     function reqError(err) {
@@ -130,14 +138,14 @@ export default class TripTask extends Component {
   }
 
   setAddressAndSaveLocal = async (text, key) => {
-    if(key === "fromAddr"){
+    if (key.localeCompare("fromAddr") === 0) {
       this.setState({ fromAddr: text, fromOptionsShow: false, searchFromAdresses: [] });
-    }else{
+    } else {
       this.setState({ toAddr: text, toOptionsShow: false, searchToAdresses: [] });
     }
     this.getDistance();
     try {
-      await AsyncStorage.setItem( key, text);
+      await AsyncStorage.setItem(key, text);
     } catch (error) {
       // Error saving data: TBD
     }
@@ -146,12 +154,12 @@ export default class TripTask extends Component {
 
   getFromAddr = (text) => {
     this.setState({ fromAddr: text });
-    debounce(this.loadAdresses(text, "fromAddr"), 1000);
+    debounce(this.loadAdresses(text, "fromAddr"), 300);
   }
 
   getToAddr = (text) => {
     this.setState({ toAddr: text });
-    debounce(this.loadAdresses(text, "toAddr"), 1000);
+    debounce(this.loadAdresses(text, "toAddr"), 300);
     this.ShowHideComponent();
   }
 
