@@ -5,6 +5,17 @@ import { API_KEY } from "react-native-dotenv";
 import DatePicker from './DatePicker';
 import TimePicker from './TimePicker';
 
+/* import API, { graphqlOperation } from '@aws-amplify/api';
+import { createTrip } from './src/graphql/mutations';
+import config from './aws-exports'
+
+API.configure(config);
+
+
+async function createNewTrip(name, address) {
+  const trip = { name: name, value: address }
+  await API.graphql(graphqlOperation(createTrip, { input: trip }));
+} */
 
 
 export default class TripTask extends Component {
@@ -31,14 +42,26 @@ export default class TripTask extends Component {
   };
 
 
+
+
   componentDidMount = () => {
     this.loadLocalSavedAddr();
     this.ShowHideComponent();
     this.syncToClouddb();
   }
 
-  syncToClouddb = () => {
-    //Update from local db to cloud
+  syncToClouddb = async () => {
+   /*  try {
+
+      var fromAddress = await AsyncStorage.getItem("fromAddr");
+      createNewTrip("fromAddr", fromAddress);
+
+      var toAddress = await AsyncStorage.getItem("toAddr");
+      createNewTrip("toAddr", toAddress);
+
+    } catch (error) {
+      // Error retrieving data: TBD
+    } */
   }
 
   loadLocalSavedAddr = async () => {
@@ -90,19 +113,26 @@ export default class TripTask extends Component {
   }
 
 
-  getDistance = () => {
-    if (this.state.fromAddr.localeCompare("Von") === 0 ||  this.state.toAddr.localeCompare("Nach") === 0) {
+  getDistance = (from, to) => {
 
+    //pick the old value from state variables and new value comes from parameter
+    // Done to avid a bug where, the state varible is read out before being updated.
+    if(from === ""){
+      var from = this.state.fromAddr;
+    }else{
+      var to = this.state.toAddr;
+    }
+
+    if (to.localeCompare("Von") === 0 || to.localeCompare("Nach") === 0) {
       return;
-
     }
 
 
     var t = this;
 
     var proxyUrl = 'https://cors-anywhere.herokuapp.com/';
-    var distanceURL = 'https://maps.googleapis.com/maps/api/distancematrix/json?units=metric&origins=' + this.state.fromAddr + '&destinations=' +
-      this.state.toAddr + '&key=' + API_KEY
+    var distanceURL = 'https://maps.googleapis.com/maps/api/distancematrix/json?units=metric&origins=' + from + '&destinations=' +
+      to + '&key=' + API_KEY
 
     function reqListener() {
       var data = JSON.parse(this.response);
@@ -114,7 +144,10 @@ export default class TripTask extends Component {
         var addedDate = new Date(t.state.fromDate.getTime() + data.rows[0].elements[0].duration.value * 1000);
         t.setState({ toDate: addedDate });
         t.setState({ toTime: addedDate });
+      }else{
+        console.log("Distance Error");
       }
+
     }
     function reqError(err) {
       //  console.log('Fetch Error :-S', err);
@@ -140,11 +173,13 @@ export default class TripTask extends Component {
   setAddressAndSaveLocal = async (text, key) => {
     if (key.localeCompare("fromAddr") === 0) {
       this.setState({ fromAddr: text, fromOptionsShow: false, searchFromAdresses: [] });
+      this.getDistance(text, "");// to pass the value that is set directly
     } else {
       this.setState({ toAddr: text, toOptionsShow: false, searchToAdresses: [] });
+      this.getDistance( "", text);
     }
-    this.getDistance();
-    try {
+    
+     try {
       await AsyncStorage.setItem(key, text);
     } catch (error) {
       // Error saving data: TBD
@@ -154,12 +189,12 @@ export default class TripTask extends Component {
 
   getFromAddr = (text) => {
     this.setState({ fromAddr: text });
-    debounce(this.loadAdresses(text, "fromAddr"), 300);
+    debounce(this.loadAdresses(text, "fromAddr"), 2000);
   }
 
   getToAddr = (text) => {
     this.setState({ toAddr: text });
-    debounce(this.loadAdresses(text, "toAddr"), 300);
+    debounce(this.loadAdresses(text, "toAddr"), 2000);
     this.ShowHideComponent();
   }
 
