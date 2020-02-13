@@ -164,12 +164,13 @@ export default class TripTask extends Component {
 
   ShowHideComponent = () => {
     if (this.state.toAddr == "Nach" || this.state.toAddr == "") {
-      this.setState({ show: false });
+      this.setState({ show: false }); 
     } else {
       this.setState({ show: true });
     }
   }
 
+  
   setAddressAndSaveLocal = async (text, key) => {
     if (key.localeCompare("fromAddr") === 0) {
       this.setState({ fromAddr: text, fromOptionsShow: false, searchFromAdresses: [] });
