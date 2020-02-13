@@ -123,7 +123,7 @@ export default class TripTask extends Component {
       var to = this.state.toAddr;
     }
 
-    if (to.localeCompare("Von") === 0 || to.localeCompare("Nach") === 0) {
+    if (from.localeCompare("Von") === 0 || to.localeCompare("Nach") === 0) {
       return;
     }
 
@@ -163,7 +163,7 @@ export default class TripTask extends Component {
   }
 
   ShowHideComponent = () => {
-    if (this.state.toAddr == "Von" || this.state.toAddr == "") {
+    if (this.state.toAddr == "Nach" || this.state.toAddr == "") {
       this.setState({ show: false });
     } else {
       this.setState({ show: true });
@@ -214,7 +214,7 @@ export default class TripTask extends Component {
       <View style={styles.container}>
         <TextInput
           style={{ paddingLeft: 20, height: 40, borderColor: 'gray', borderWidth: 1, width: 250, maxHeight: 60 }}
-          //placeholder="Von"
+          placeholder="Von"
           value={this.state.fromAddr}
           onChangeText={this.getFromAddr}
         />
