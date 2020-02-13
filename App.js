@@ -1,5 +1,6 @@
+
 import React, { Component } from 'react';
-import { View, StyleSheet, TextInput, FlatList, Text, AsyncStorage, processColor } from 'react-native';
+import { View, StyleSheet, TextInput, FlatList, Text, AsyncStorage,  } from 'react-native';
 import { debounce } from "debounce";
 import { API_KEY } from "react-native-dotenv";
 import DatePicker from './DatePicker';
@@ -32,7 +33,7 @@ export default class TripTask extends Component {
       toDate: new Date(),
       toTime: new Date(),
       toAddr: "Nach",
-      show: false,
+      showHideDateTime: false,
       searchFromAdresses: [],
       searchToAdresses: [],
       fromOptionsShow: false,
@@ -46,7 +47,7 @@ export default class TripTask extends Component {
 
   componentDidMount = () => {
     this.loadLocalSavedAddr();
-    this.ShowHideComponent();
+    this.showHideDateTime();
     this.syncToClouddb();
   }
 
@@ -67,15 +68,15 @@ export default class TripTask extends Component {
   loadLocalSavedAddr = async () => {
     //retrieve stored data for the first time
     try {
-      var value = await AsyncStorage.getItem("fromAddr");
-      if (value !== null) {
-        this.setState({ fromAddr: value });
+      var fromAddrValue = await AsyncStorage.getItem("fromAddr");
+      if (fromAddrValue !== null) {
+        this.setState({ fromAddr: fromAddrValue });
       }
 
-      value = await AsyncStorage.getItem("toAddr");
-      if (value !== null) {
-        this.setState({ toAddr: value });
-        this.getDistance();
+      var toAddrValue = await AsyncStorage.getItem("toAddr");
+      if (toAddrValue !== null) {
+        this.setState({ toAddr: toAddrValue });
+        this.getDistance(fromAddrValue, toAddrValue);
       }
 
     } catch (error) {
@@ -139,11 +140,12 @@ export default class TripTask extends Component {
       // console.log(data);
       // var origin =  data.origin_addresses[0];
       //var destination = data.destination_addresses[0];
-      if (data.rows[0].elements != undefined && data.rows[0].elements[0].distance != undefined) {
+      if (data.rows != undefined && data.rows[0].elements != undefined && data.rows[0].elements[0].distance != undefined) {
         t.setState({ distance: data.rows[0].elements[0].distance.text });
         var addedDate = new Date(t.state.fromDate.getTime() + data.rows[0].elements[0].duration.value * 1000);
         t.setState({ toDate: addedDate });
         t.setState({ toTime: addedDate });
+        t.showHideDateTime();
       }else{
         console.log("Distance Error");
       }
@@ -162,16 +164,17 @@ export default class TripTask extends Component {
 
   }
 
-  ShowHideComponent = () => {
+  showHideDateTime = () => {
     if (this.state.toAddr == "Nach" || this.state.toAddr == "") {
-      this.setState({ show: false }); 
+      this.setState({ showHideDateTime: false }); 
     } else {
-      this.setState({ show: true });
+      this.setState({ showHideDateTime: true });
     }
   }
 
   
   setAddressAndSaveLocal = async (text, key) => {
+    
     if (key.localeCompare("fromAddr") === 0) {
       this.setState({ fromAddr: text, fromOptionsShow: false, searchFromAdresses: [] });
       this.getDistance(text, "");// to pass the value that is set directly
@@ -196,7 +199,6 @@ export default class TripTask extends Component {
   getToAddr = (text) => {
     this.setState({ toAddr: text });
     debounce(this.loadAdresses(text, "toAddr"), 2000);
-    this.ShowHideComponent();
   }
 
   FlatListItemSeparator = () => {
@@ -231,6 +233,7 @@ export default class TripTask extends Component {
               <Text
                 style={styles.item}
                 onPress={() => {
+                  //Touched item and the calling input field is passed
                   this.setAddressAndSaveLocal(item.description, "fromAddr")
                 }} >
                 {item.description}
@@ -238,7 +241,7 @@ export default class TripTask extends Component {
             </View>
           )}
         /> : null}
-
+ 
         <DatePicker
           label="Abreisedatum"
           date={this.state.fromDate}
@@ -281,7 +284,7 @@ export default class TripTask extends Component {
               </View>
             )}
           /> : null}
-        {this.state.show ? (
+        {this.state.showHideDateTime ? (
           <DatePicker
             label="Ankuftsdatum"
             date={this.state.toDate}
@@ -290,7 +293,7 @@ export default class TripTask extends Component {
             }}
           />
         ) : null}
-        {this.state.show ? (
+        {this.state.showHideDateTime ? (
 
           <TimePicker
             label="Uhrzeit"
